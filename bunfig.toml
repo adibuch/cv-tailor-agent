@@ -1,0 +1,10 @@
+[install]
+# Install dependencies with Bun
+production = false
+optional = true
+dev = true
+peer = true
+
+[install.cache]
+# Cache directory for faster installs
+dir = ".bun-cache"
