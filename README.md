@@ -7,7 +7,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8)](https://tailwindcss.com/)
 [![Groq](https://img.shields.io/badge/Groq-Llama--3.3-orange)](https://groq.com/)
 
-![CV Tailor Agent Screenshot](https://via.placeholder.com/1200x600/0f172a/6366f1?text=CV+Tailor+Agent)
+
 
 ## ✨ Features
 
@@ -20,7 +20,7 @@
 
 ## 🎬 Demo
 
-**Try it live:** [(https://cv-tailor-agent-6eszxbhid-adibuchs-projects.vercel.app)]))
+**Try it live:** [(https://cv-tailor-agent-6eszxbhid-adibuchs-projects.vercel.app)]
 
 ### How it works:
 
