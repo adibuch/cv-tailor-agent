@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { parseLLMResponse } from '@/lib/utils';
 
 interface ResultsSectionProps {
   result: {
@@ -22,6 +23,9 @@ export default function ResultsSection({ result, onReset, userData }: ResultsSec
   const [activeTab, setActiveTab] = useState<'cv' | 'letter'>('cv');
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
+  // Parse the LLM response to separate CV and Cover Letter
+  const { cv, coverLetter } = parseLLMResponse(result.content);
+
   const handleDownloadPDF = async (type: 'cv' | 'cover-letter') => {
     setIsGeneratingPDF(true);
     try {
@@ -32,8 +36,8 @@ export default function ResultsSection({ result, onReset, userData }: ResultsSec
         },
         body: JSON.stringify({
           type,
-          cvText: result.content,
-          coverLetterText: result.content,
+          cvText: cv,
+          coverLetterText: coverLetter,
           userData: userData || {
             name: 'Your Name',
             email: 'your.email@example.com',
@@ -58,14 +62,15 @@ export default function ResultsSection({ result, onReset, userData }: ResultsSec
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
+      alert(`Failed to generate PDF. Please try again. ${error instanceof Error ? error.message : ''}`);
     } finally {
       setIsGeneratingPDF(false);
     }
   };
 
   const handleDownloadText = (type: 'cv' | 'letter') => {
-    const blob = new Blob([result.content], { type: 'text/plain' });
+    const content = type === 'cv' ? cv : coverLetter;
+    const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -292,7 +297,7 @@ export default function ResultsSection({ result, onReset, userData }: ResultsSec
           {/* Content preview */}
           <div className="bg-slate-900/80 rounded-2xl p-6 max-h-96 overflow-y-auto border border-gray-700/50">
             <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono leading-relaxed">
-              {result.content}
+              {activeTab === 'cv' ? cv : coverLetter}
             </pre>
           </div>
         </motion.div>

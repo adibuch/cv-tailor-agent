@@ -112,3 +112,36 @@ export function formatFileSize(bytes: number): string {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 }
+
+/**
+ * Parse LLM response to separate CV and Cover Letter
+ */
+export function parseLLMResponse(content: string): { cv: string; coverLetter: string } {
+  // Try to find sections marked with ## headers
+  const cvMatch = content.match(/##\s*TAILORED CV[\s\S]*?(?=##\s*COVER LETTER|$)/i);
+  const letterMatch = content.match(/##\s*COVER LETTER[\s\S]*?(?=##\s*BRIEF SUMMARY|##\s*SUMMARY|$)/i);
+
+  // If we found both sections, return them
+  if (cvMatch && letterMatch) {
+    return {
+      cv: cvMatch[0].trim(),
+      coverLetter: letterMatch[0].trim(),
+    };
+  }
+
+  // Fallback: Try splitting by "## COVER LETTER"
+  const parts = content.split(/##\s*COVER LETTER/i);
+  if (parts.length >= 2) {
+    return {
+      cv: parts[0].trim(),
+      coverLetter: '## COVER LETTER\n' + parts[1].split(/##\s*BRIEF SUMMARY|##\s*SUMMARY/i)[0].trim(),
+    };
+  }
+
+  // If no clear separation, return the whole content for both
+  // (better than showing nothing)
+  return {
+    cv: content,
+    coverLetter: content,
+  };
+}

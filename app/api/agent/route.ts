@@ -45,6 +45,10 @@ import { z } from 'zod';
 import { createSession, updateSession } from '@/lib/session';
 import Groq from 'groq-sdk';
 
+// Configure Vercel timeout for this route (Hobby plan: max 10s, Pro: max 60s)
+export const maxDuration = 60; // Request will be allowed to run for up to 60 seconds
+export const dynamic = 'force-dynamic'; // Disable static optimization for this route
+
 /**
  * Request Schema
  *
@@ -139,6 +143,10 @@ export async function POST(request: NextRequest) {
     // Full agent orchestration with tool calling comes next!
 
     console.log('[API /agent] Generating tailored CV...');
+    console.log('[API /agent] 📊 CV Length:', cvText.length, 'characters');
+    console.log('[API /agent] 📊 Job Description Length:', jobDescription.length, 'characters');
+    console.log('[API /agent] 🎯 Target Position:', jobTitle);
+    console.log('[API /agent] 🏢 Company:', companyName || 'Not specified');
 
     const prompt = `You are an expert CV tailoring specialist.
 
@@ -153,17 +161,27 @@ Description:
 ${jobDescription}
 
 TASK:
-1. Analyze the job requirements
-2. Identify relevant experience from the CV
-3. Create a tailored version that emphasizes relevant skills
-4. Write a compelling cover letter
+1. Analyze the job requirements carefully
+2. Identify relevant experience, skills, and achievements from the CV
+3. Create a tailored version that emphasizes relevant qualifications
+4. Optimize keywords to match the job posting
+5. Write a compelling, personalized cover letter
 
-Please provide:
-1. TAILORED CV (formatted professionally)
-2. COVER LETTER (3-4 paragraphs)
-3. BRIEF SUMMARY of key changes made
+Please provide your response in this EXACT format:
 
-Format your response clearly with sections.`;
+## TAILORED CV
+[Your professionally formatted, tailored CV here - emphasize relevant experience and skills]
+
+## COVER LETTER
+[Your 3-4 paragraph cover letter here - be specific about relevant qualifications]
+
+## BRIEF SUMMARY
+[3-5 bullet points of key changes and optimizations made]
+
+IMPORTANT: Follow the exact format above with ## headers.`;
+
+    console.log('[API /agent] 📝 Prompt Created (', prompt.length, 'chars)');
+    console.log('[API /agent] 🤖 Calling Groq API (Model: llama-3.3-70b-versatile)...');
 
     const completion = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
@@ -182,8 +200,25 @@ Format your response clearly with sections.`;
     });
 
     const result = completion.choices[0].message.content || '';
+    const usage = completion.usage;
 
     console.log('[API /agent] ✓ Generation complete');
+    console.log('[API /agent] 📊 Token Usage:');
+    console.log('[API /agent]    - Prompt tokens:', usage?.prompt_tokens || 0);
+    console.log('[API /agent]    - Completion tokens:', usage?.completion_tokens || 0);
+    console.log('[API /agent]    - Total tokens:', usage?.total_tokens || 0);
+    console.log('[API /agent] 📝 Response Length:', result.length, 'characters');
+    console.log('[API /agent] 🎬 Model Used:', completion.model);
+
+    // Log sections found
+    const hasTailoredCV = result.includes('## TAILORED CV') || result.includes('##TAILORED CV');
+    const hasCoverLetter = result.includes('## COVER LETTER') || result.includes('##COVER LETTER');
+    const hasSummary = result.includes('## BRIEF SUMMARY') || result.includes('##BRIEF SUMMARY');
+
+    console.log('[API /agent] 📑 Sections Detected:');
+    console.log('[API /agent]    - Tailored CV:', hasTailoredCV ? '✓' : '✗');
+    console.log('[API /agent]    - Cover Letter:', hasCoverLetter ? '✓' : '✗');
+    console.log('[API /agent]    - Summary:', hasSummary ? '✓' : '✗');
 
     // ============================================
     // STEP 7: Update Session & Return

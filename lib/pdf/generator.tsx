@@ -152,8 +152,8 @@ export function parseCoverLetterText(
  * Generate CV PDF as buffer
  */
 export async function generateCVPDF(data: CVData): Promise<Buffer> {
-  const doc = React.createElement(CVModern, { data }) as any;
-  const buffer = await renderToBuffer(doc);
+  // Render JSX directly - @react-pdf/renderer handles it correctly
+  const buffer = await renderToBuffer(<CVModern data={data} />);
   return buffer as Buffer;
 }
 
@@ -161,8 +161,8 @@ export async function generateCVPDF(data: CVData): Promise<Buffer> {
  * Generate Cover Letter PDF as buffer
  */
 export async function generateCoverLetterPDF(data: CoverLetterData): Promise<Buffer> {
-  const doc = React.createElement(CoverLetter, { data }) as any;
-  const buffer = await renderToBuffer(doc);
+  // Render JSX directly - @react-pdf/renderer handles it correctly
+  const buffer = await renderToBuffer(<CoverLetter data={data} />);
   return buffer as Buffer;
 }
 

@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { generateCVPDF, generateCoverLetterPDF, parseCVText, parseCoverLetterText } from '@/lib/pdf/generator';
+import { generateCVPDF, generateCoverLetterPDF, parseCVText, parseCoverLetterText } from '@/lib/pdf/simple-generator';
 
 export async function POST(request: NextRequest) {
   try {
