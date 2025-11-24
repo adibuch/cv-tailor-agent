@@ -20,7 +20,7 @@
 
 ## 🎬 Demo
 
-**Try it live:** [[cv-tailor-agent.vercel.app](https://your-deployment-url.vercel.app](https://cv-tailor-agent-6eszxbhid-adibuchs-projects.vercel.app))
+**Try it live:** [[cv-tailor-agent.vercel.app]([https://your-deployment-url.vercel.app](https://cv-tailor-agent-6eszxbhid-adibuchs-projects.vercel.app)]))
 
 ### How it works:
 
